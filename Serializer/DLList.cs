@@ -79,13 +79,8 @@ namespace Serializer
 
             for (int i = 0; i < listSize; i++)
             {
-                list.Add($"Item #{i}");
+                list.Add($"https://{DateTime.UtcNow.Millisecond}.com/a/very-real/link-to-a-very-real-resource");
             }
-
-            list.SetReference(3, 1);
-            list.SetReference(5, 7);
-            list.SetReference(4, 2);
-
 
             for (int i = 0; i < listSize; i++)
             {

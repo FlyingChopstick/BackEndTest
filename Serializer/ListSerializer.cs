@@ -46,9 +46,7 @@ namespace Serializer
 
 
 
-        private readonly List<string> _nodeData = new();
-        private readonly List<string> _randomData = new();
-        private readonly List<int> _randomIndices = new();
+        private readonly List<string> _nodeData = new(1024);
 
         /// <summary>
         /// Converts nodes into serializeable list, storing their order and Random topography
@@ -57,39 +55,35 @@ namespace Serializer
         /// <returns></returns>
         private List<SavedNode> SaveNodes(ListNode head)
         {
-            //List<string> _randomData = new();
-            //List<int> _randomIndices = new();
-
-            var currentNode = head;
-            _randomData.Clear();
-            _randomIndices.Clear();
+            ListNode _currentNode = head;
             _nodeData.Clear();
+            List<string> _randomData = new(1024);
+            List<int> _randomIndices = new(1024);
+            List<SavedNode> _savedNodes = new(1024);
 
-            while (currentNode is not null)
+            while (_currentNode is not null)
             {
-                _nodeData.Add(currentNode.Data);
-                _randomData.Add(currentNode.Random?.Data);
+                _nodeData.Add(_currentNode.Data);
+                _randomData.Add(_currentNode.Random?.Data);
 
-                currentNode = currentNode.Next;
+                _currentNode = _currentNode.Next;
             }
 
-            List<SavedNode> savedNodes = new();
             for (int i = 0; i < _randomData.Count; i++)
             {
                 _randomIndices.Add(FindRandomIndex(_randomData[i]));
-                savedNodes.Add(new()
+                _savedNodes.Add(new()
                 {
                     Data = _nodeData[i],
                     IndexRandom = _randomIndices[i]
                 });
             }
 
-
-            return savedNodes;
+            return _savedNodes;
         }
         private ListNode RestoreNodes(List<SavedNode> savedNodes)
         {
-            List<ListNode> nodes = new();
+            List<ListNode> nodes = new(1024);
             nodes.Add(new()
             {
                 Previous = null,
@@ -97,8 +91,8 @@ namespace Serializer
                 Data = savedNodes[0].Data,
                 Random = null
             });
-            var previous = nodes[0];
 
+            var previous = nodes[0];
             for (int i = 1; i < savedNodes.Count; i++)
             {
                 ListNode newNode = new()
@@ -136,15 +130,14 @@ namespace Serializer
             {
                 return -1;
             }
-            for (int i = 0; i < _nodeData.Count; i++)
+
+            int index = _nodeData.IndexOf(random);
+            if (index == -1)
             {
-                if (random == _nodeData[i])
-                {
-                    return i;
-                }
+                throw new ArgumentException($"The required Random node does not exist. Node data was: {random}");
             }
 
-            throw new ArgumentException($"The required Random node does not exist. Node data was: {random}");
+            return index;
         }
     }
 }

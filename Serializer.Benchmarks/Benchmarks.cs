@@ -7,7 +7,7 @@ namespace Serializer.Benchmarks
     [RankColumn]
     public class Benchmarks
     {
-        DLList list = DLList.NewFilledList(100);
+        DLList list = DLList.NewFilledList(10000);
         ListSerializer serializer = new();
         string filename = "dump.txt";
 

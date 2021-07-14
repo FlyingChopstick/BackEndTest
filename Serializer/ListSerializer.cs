@@ -6,10 +6,19 @@ using Serializer.Model;
 
 namespace Serializer
 {
+    /// <summary>
+    /// Container to store node info for serialization
+    /// </summary>
     [Serializable]
     public struct SavedNode
     {
+        /// <summary>
+        /// Index of an associated random node. == -1 if no Random node is associated.
+        /// </summary>
         public int IndexRandom { get; init; }
+        /// <summary>
+        /// Node data
+        /// </summary>
         public string Data { get; init; }
     }
 
@@ -19,7 +28,14 @@ namespace Serializer
         {
             BinaryFormatter bf = new();
 
-            return RestoreNodes((List<SavedNode>)bf.Deserialize(s));
+            try
+            {
+                return RestoreNodes((List<SavedNode>)bf.Deserialize(s));
+            }
+            catch (Exception)
+            {
+                throw new ArgumentException("Could not deserialize the stream.");
+            }
         }
         public void Serialize(ListNode head, Stream s)
         {
@@ -31,36 +47,43 @@ namespace Serializer
 
 
         private readonly List<string> _nodeData = new();
+        private readonly List<string> _randomData = new();
+        private readonly List<int> _randomIndices = new();
+
+        /// <summary>
+        /// Converts nodes into serializeable list, storing their order and Random topography
+        /// </summary>
+        /// <param name="head"></param>
+        /// <returns></returns>
         private List<SavedNode> SaveNodes(ListNode head)
         {
+            //List<string> _randomData = new();
+            //List<int> _randomIndices = new();
+
             var currentNode = head;
-            //List<string> _nodeData = new();
-            List<string> random = new();
-            List<int> rndIndices = new();
+            _randomData.Clear();
+            _randomIndices.Clear();
             _nodeData.Clear();
 
             while (currentNode is not null)
             {
                 _nodeData.Add(currentNode.Data);
-                random.Add(currentNode.Random?.Data);
+                _randomData.Add(currentNode.Random?.Data);
 
                 currentNode = currentNode.Next;
             }
 
-            for (int i = 0; i < random.Count; i++)
-            {
-                rndIndices.Add(FindRandomIndex(random[i]));
-            }
-
             List<SavedNode> savedNodes = new();
-            for (int i = 0; i < _nodeData.Count; i++)
+            for (int i = 0; i < _randomData.Count; i++)
             {
+                _randomIndices.Add(FindRandomIndex(_randomData[i]));
                 savedNodes.Add(new()
                 {
                     Data = _nodeData[i],
-                    IndexRandom = rndIndices[i]
+                    IndexRandom = _randomIndices[i]
                 });
             }
+
 
             return savedNodes;
         }
@@ -102,6 +125,11 @@ namespace Serializer
 
             return nodes[0];
         }
+        /// <summary>
+        /// In the list of nodes, find one with the query data
+        /// </summary>
+        /// <param name="random">Query</param>
+        /// <returns>Index of a node or -1 if the query is null</returns>
         private int FindRandomIndex(string random)
         {
             if (random is null)
@@ -116,7 +144,7 @@ namespace Serializer
                 }
             }
 
-            throw new ArgumentException();
+            throw new ArgumentException($"The required Random node does not exist. Node data was: {random}");
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using BenchmarkDotNet.Running;
 
 namespace Serializer.Benchmarks
 {
@@ -6,7 +6,7 @@ namespace Serializer.Benchmarks
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            BenchmarkRunner.Run<Benchmarks>();
         }
     }
 }

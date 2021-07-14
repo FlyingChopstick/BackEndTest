@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Running;
-using Serializer.Benchmark;
 
 namespace Serializer
 {
@@ -7,7 +6,6 @@ namespace Serializer
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<Benchmarks>();
         }
     }
 }

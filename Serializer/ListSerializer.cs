@@ -25,20 +25,23 @@ namespace Serializer
         {
             BinaryFormatter bf = new();
 
-            var nodes = SaveNodes(head);
-            bf.Serialize(s, nodes);
+            bf.Serialize(s, SaveNodes(head));
         }
 
+
+
+        private readonly List<string> _nodeData = new();
         private List<SavedNode> SaveNodes(ListNode head)
         {
             var currentNode = head;
-            List<string> data = new();
+            //List<string> _nodeData = new();
             List<string> random = new();
             List<int> rndIndices = new();
+            _nodeData.Clear();
 
             while (currentNode is not null)
             {
-                data.Add(currentNode.Data);
+                _nodeData.Add(currentNode.Data);
                 random.Add(currentNode.Random?.Data);
 
                 currentNode = currentNode.Next;
@@ -46,15 +49,15 @@ namespace Serializer
 
             for (int i = 0; i < random.Count; i++)
             {
-                rndIndices.Add(FindRandomIndex(random[i], data));
+                rndIndices.Add(FindRandomIndex(random[i]));
             }
 
             List<SavedNode> savedNodes = new();
-            for (int i = 0; i < data.Count; i++)
+            for (int i = 0; i < _nodeData.Count; i++)
             {
                 savedNodes.Add(new()
                 {
-                    Data = data[i],
+                    Data = _nodeData[i],
                     IndexRandom = rndIndices[i]
                 });
             }
@@ -64,15 +67,14 @@ namespace Serializer
         private ListNode RestoreNodes(List<SavedNode> savedNodes)
         {
             List<ListNode> nodes = new();
-            ListNode head = new()
+            nodes.Add(new()
             {
                 Previous = null,
                 Next = null,
                 Data = savedNodes[0].Data,
                 Random = null
-            };
-            nodes.Add(head);
-            var previous = head;
+            });
+            var previous = nodes[0];
 
             for (int i = 1; i < savedNodes.Count; i++)
             {
@@ -98,17 +100,17 @@ namespace Serializer
                 }
             }
 
-            return head;
+            return nodes[0];
         }
-        private int FindRandomIndex(string random, List<string> data)
+        private int FindRandomIndex(string random)
         {
             if (random is null)
             {
                 return -1;
             }
-            for (int i = 0; i < data.Count; i++)
+            for (int i = 0; i < _nodeData.Count; i++)
             {
-                if (random == data[i])
+                if (random == _nodeData[i])
                 {
                     return i;
                 }
@@ -116,6 +118,5 @@ namespace Serializer
 
             throw new ArgumentException();
         }
-
     }
 }

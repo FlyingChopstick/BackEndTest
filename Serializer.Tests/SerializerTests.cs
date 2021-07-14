@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Serializer.Model;
 using Xunit;
 
 namespace Serializer.Tests
@@ -12,27 +13,31 @@ namespace Serializer.Tests
             DLList list = DLList.NewFilledList();
             ListSerializer ls = new();
 
-
-            string filename = DateTime.Now.ToString();
-            using Stream writeStream = File.OpenWrite(filename);
-            ls.Serialize(list.Head, writeStream);
+            Random rnd = new(DateTime.Now.Second);
+            string filename = rnd.Next().ToString();
+            using (Stream writeStream = File.OpenWrite(filename))
+            {
+                ls.Serialize(list.Head, writeStream);
+            }
 
 
             Assert.True(File.Exists(filename));
             Assert.True(File.ReadAllText(filename) != string.Empty);
         }
 
+
         [Theory]
         [InlineData(10)]
         [InlineData(100)]
         [InlineData(1000)]
-        public void Deserialize_ShouldReturnWorkingHead(int listSize)
+        public void Deserialize_ShouldReturnFullList(int listSize)
         {
             DLList list = DLList.NewFilledList(listSize);
             ListSerializer ls = new();
 
 
-            string filename = DateTime.Now.ToString();
+            Random rnd = new(DateTime.Now.Second);
+            string filename = rnd.Next().ToString();
             using (Stream writeStream = File.OpenWrite(filename))
             {
                 ls.Serialize(list.Head, writeStream);
@@ -44,17 +49,33 @@ namespace Serializer.Tests
             {
                 newHead = ls.Deserialize(readStream);
             }
-
+            // check head data
             Assert.Equal(list.Head.Data, newHead.Data);
-            Assert.Equal(list.Head.Next, newHead.Next);
-            Assert.Equal(list.Head.Previous, newHead.Previous);
-            Assert.Equal(list.Head.Random, newHead.Random);
 
+            // go through the whole list
             ListNode node = newHead;
-            for (int i = 0; i < listSize; i++)
+            for (int i = 0; i < listSize - 1; i++)
             {
+                //check data
+                Assert.Equal(node.Data, newHead.Data);
+
                 node = node.Next;
+                newHead = newHead.Next;
             }
+            //check that the last node has no followers
+            Assert.Null(node.Next);
+
+            //go backwards
+            for (int i = 0; i < listSize - 1; i++)
+            {
+                //check data
+                Assert.Equal(node.Data, newHead.Data);
+
+                node = node.Previous;
+                newHead = newHead.Previous;
+            }
+            //check that the head has no ancestors
+            Assert.Null(node.Previous);
         }
     }
 }

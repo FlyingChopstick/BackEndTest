@@ -101,7 +101,7 @@ namespace Serializer
 
             while (refIndex == requesterIndex)
             {
-                refIndex = rnd.Next();
+                refIndex = rnd.Next(0, maxIndex);
             }
 
             return refIndex;

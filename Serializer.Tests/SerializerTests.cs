@@ -59,6 +59,12 @@ namespace Serializer.Tests
                 //check data
                 Assert.Equal(node.Data, newHead.Data);
 
+                //check Random data
+                if (node.Random is not null)
+                {
+                    Assert.Equal(node.Random.Data, newHead.Random.Data);
+                }
+
                 node = node.Next;
                 newHead = newHead.Next;
             }

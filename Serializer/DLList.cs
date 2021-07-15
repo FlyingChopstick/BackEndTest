@@ -79,7 +79,7 @@ namespace Serializer
 
             for (int i = 0; i < listSize; i++)
             {
-                list.Add($"https://{DateTime.UtcNow.Millisecond}.com/a/very-real/link-to-a-very-real-resource");
+                list.Add($"https://{DateTime.UtcNow.Millisecond}.com/{i}/very-real/link-to-a-very-real-resource");
             }
 
             for (int i = 0; i < listSize; i++)
